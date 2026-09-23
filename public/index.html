@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave Management Portal & API Playground | Enterprise HRMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i data-lucide="calendar-clock" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-lg text-white tracking-tight">SunSea LeavePortal</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v1.2 Production</span>
+          </div>
+          <p class="text-xs text-slate-400">Enterprise Leave Request Service & Serverless API</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>API: Online (Serverless)</span>
+        </div>
+        <a href="https://github.com/gitanash2126/leave-request-api" target="_blank" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+          <i data-lucide="github" class="w-4 h-4"></i>
+          <span>GitHub Repo</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    
+    <!-- Hero Header Banner -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-slate-900 border border-indigo-500/20 p-6 sm:p-8">
+      <div class="relative z-10 max-w-3xl space-y-3">
+        <div class="inline-flex items-center space-x-2 text-xs font-medium px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Engineered for Reliability, Strict Date Validation & Clean Error Responses</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Modern Employee Leave Management System
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Fully integrated HR portal powered by a robust Node.js serverless endpoint. Includes RFC-compliant status codes, strict date boundary validation, query filtering, and interactive live API testing.
+        </p>
+      </div>
+      <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400">Total Requests</span>
+          <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <i data-lucide="files" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-white" id="statTotal">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">All submissions</div>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-amber-400">Pending Review</span>
+          <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-amber-300" id="statPending">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">Requires HR review</div>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-emerald-400">Approved</span>
+          <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-emerald-300" id="statApproved">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">Confirmed leaves</div>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-rose-400">Rejected</span>
+          <div class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400">
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-rose-300" id="statRejected">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">Disapproved requests</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-slate-800 space-x-6">
+      <button id="tabBtnPortal" onclick="switchTab('portal')" class="pb-3 text-sm font-semibold flex items-center space-x-2 text-indigo-400 border-b-2 border-indigo-500 transition">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>HR Management Portal</span>
+      </button>
+      <button id="tabBtnPlayground" onclick="switchTab('playground')" class="pb-3 text-sm font-semibold flex items-center space-x-2 text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition">
+        <i data-lucide="terminal" class="w-4 h-4"></i>
+        <span>Interactive API Playground</span>
+      </button>
+      <button id="tabBtnArchitecture" onclick="switchTab('architecture')" class="pb-3 text-sm font-semibold flex items-center space-x-2 text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition">
+        <i data-lucide="code-2" class="w-4 h-4"></i>
+        <span>Technical Architecture & Docs</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: HR Portal View -->
+    <div id="tabPortal" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Column: Submit New Leave Form -->
+      <div class="lg:col-span-5 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i>
+            <span>Submit Leave Request</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Tests client and server-side date validation automatically.
+          </p>
+        </div>
+
+        <form id="leaveForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Employee ID <span class="text-rose-400">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </span>
+              <input type="text" id="employeeId" required value="EMP-1042" placeholder="e.g. EMP-1042" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Start Date <span class="text-rose-400">*</span>
+              </label>
+              <input type="date" id="startDate" required onchange="calculateDuration()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                End Date <span class="text-rose-400">*</span>
+              </label>
+              <input type="date" id="endDate" required onchange="calculateDuration()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <!-- Duration Pill -->
+          <div id="durationBox" class="hidden p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs flex items-center justify-between">
+            <span class="flex items-center space-x-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+              <span id="durationText">0 days</span>
+            </span>
+            <span class="text-[10px] text-indigo-400 font-mono">startDate &le; endDate</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Reason / Notes
+            </label>
+            <textarea id="reason" rows="3" placeholder="e.g. Annual family vacation, Medical appointment, etc." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"></textarea>
+          </div>
+
+          <!-- Live Alert Box -->
+          <div id="formAlert" class="hidden p-3 rounded-xl text-xs font-medium border flex items-start space-x-2"></div>
+
+          <button type="submit" id="submitBtn" class="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Submit Leave Request</span>
+          </button>
+        </form>
+
+        <!-- Quick Fill Helper Buttons -->
+        <div class="pt-4 border-t border-slate-700/60">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Quick Test Scenarios:</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setSample('valid')" class="text-left px-2.5 py-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-xs text-slate-200 transition">
+              ✅ Valid 5-Day Leave
+            </button>
+            <button onclick="setSample('sameday')" class="text-left px-2.5 py-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-xs text-slate-200 transition">
+              ✅ Same-Day Leave
+            </button>
+            <button onclick="setSample('invalidOrder')" class="text-left px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-300 transition">
+              ❌ End Before Start (400)
+            </button>
+            <button onclick="setSample('missingDates')" class="text-left px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-300 transition">
+              ❌ Missing Dates (400)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Requests Table & Query Filtering -->
+      <div class="lg:col-span-7 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-6 flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+              <i data-lucide="list-filter" class="w-5 h-5 text-indigo-400"></i>
+              <span>Leave Requests Database</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Filter by status via <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">GET /api/leave-request?status=...</code></p>
+          </div>
+          <button onclick="loadRequests()" class="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center space-x-1.5 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1 custom-scroll">
+          <button onclick="applyStatusFilter('')" id="filterBtnAll" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition">
+            All (<span id="countAll">0</span>)
+          </button>
+          <button onclick="applyStatusFilter('pending')" id="filterBtnPending" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/60 hover:bg-slate-700 text-slate-300 transition">
+            Pending (<span id="countPending">0</span>)
+          </button>
+          <button onclick="applyStatusFilter('approved')" id="filterBtnApproved" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/60 hover:bg-slate-700 text-slate-300 transition">
+            Approved (<span id="countApproved">0</span>)
+          </button>
+          <button onclick="applyStatusFilter('rejected')" id="filterBtnRejected" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/60 hover:bg-slate-700 text-slate-300 transition">
+            Rejected (<span id="countRejected">0</span>)
+          </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="flex-1 overflow-x-auto custom-scroll border border-slate-700/60 rounded-xl bg-slate-900/50 min-h-[300px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-400 font-semibold border-b border-slate-700/60">
+              <tr>
+                <th class="py-3 px-4">#ID & Employee</th>
+                <th class="py-3 px-4">Duration & Dates</th>
+                <th class="py-3 px-4">Reason</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="requestTableBody" class="divide-y divide-slate-800/80 text-slate-300">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div id="tableEmptyState" class="hidden p-8 text-center text-slate-400 space-y-2">
+            <i data-lucide="inbox" class="w-8 h-8 mx-auto text-slate-600"></i>
+            <p class="text-sm font-medium">No leave requests found for this filter.</p>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-slate-400 flex items-center justify-between">
+          <span>In-memory database store (retained during serverless lifecycle).</span>
+          <span id="activeFilterLabel" class="font-mono text-indigo-400">Endpoint: /api/leave-request</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Interactive API Playground -->
+    <div id="tabPlayground" class="hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="terminal" class="w-5 h-5 text-indigo-400"></i>
+            <span>Interactive Endpoint Tester & Playground</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Execute any HTTP request directly against the <code class="bg-slate-900 px-1 py-0.5 rounded text-indigo-300">api/leave-request.js</code> handler to inspect headers, status codes, and error payloads.
+          </p>
+        </div>
+
+        <!-- Preset Test Buttons -->
+        <div class="space-y-2">
+          <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Automated Verification Presets:</div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="loadPreset('get_all')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-emerald-400 font-bold mr-1">GET</span> All Requests
+            </button>
+            <button onclick="loadPreset('get_filter')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-emerald-400 font-bold mr-1">GET</span> ?status=pending
+            </button>
+            <button onclick="loadPreset('post_valid')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-blue-400 font-bold mr-1">POST</span> Valid 201
+            </button>
+            <button onclick="loadPreset('post_invalid_order')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-amber-400 font-bold mr-1">POST</span> End Before Start (400)
+            </button>
+            <button onclick="loadPreset('post_invalid_date')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-amber-400 font-bold mr-1">POST</span> Bad Calendar (Feb 31) (400)
+            </button>
+            <button onclick="loadPreset('post_missing_dates')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-amber-400 font-bold mr-1">POST</span> Missing Dates (400)
+            </button>
+            <button onclick="loadPreset('post_malformed_json')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-rose-400 font-bold mr-1">POST</span> Malformed JSON (400)
+            </button>
+            <button onclick="loadPreset('put_405')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-purple-400 font-bold mr-1">PUT</span> Method Not Allowed (405)
+            </button>
+            <button onclick="loadPreset('delete_405')" class="px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600">
+              <span class="text-purple-400 font-bold mr-1">DELETE</span> Method Not Allowed (405)
+            </button>
+          </div>
+        </div>
+
+        <!-- Request Builder -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Method</label>
+            <select id="apiMethod" onchange="toggleBodyVisibility()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+          </div>
+          <div class="md:col-span-7">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Path / Query</label>
+            <input type="text" id="apiPath" value="/api/leave-request" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div class="md:col-span-2 flex items-end">
+            <button onclick="sendPlaygroundRequest()" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl transition flex items-center justify-center space-x-1.5 shadow-md shadow-indigo-600/30">
+              <i data-lucide="play" class="w-4 h-4"></i>
+              <span>Send</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="bodyEditorContainer" class="hidden">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">JSON Request Body</label>
+          <textarea id="apiBody" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <!-- Response Viewer -->
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Response Output:</span>
+            <div class="flex items-center space-x-2">
+              <span id="responseStatusBadge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full font-mono"></span>
+              <span id="responseLatency" class="text-xs text-slate-400 font-mono"></span>
+            </div>
+          </div>
+          <pre id="responseOutput" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 overflow-x-auto min-h-[160px] custom-scroll">Click "Send" or pick a preset above to execute a live test.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Technical Architecture & Docs -->
+    <div id="tabArchitecture" class="hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <i data-lucide="check-check" class="w-6 h-6 text-emerald-400"></i>
+            <span>Engineering Architecture & Requirement Solutions</span>
+          </h2>
+          <p class="text-sm text-slate-300 mt-1">
+            Detailed breakdown of how each challenge was solved with high-availability serverless best practices.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-5 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center space-x-2 text-indigo-400 font-bold text-sm">
+              <span class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">1</span>
+              <span>Strict Date Validation & Calendar Boundaries</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Standard JavaScript <code class="text-slate-200">new Date('2026-02-31')</code> silently rolls over to March 3rd instead of failing. Our custom <code class="text-slate-200">parseAndValidateDate()</code> performs regex date-component extraction and UTC calendar verification, accurately rejecting impossible dates. It also guarantees <code class="text-slate-200">startDate &le; endDate</code>.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center space-x-2 text-indigo-400 font-bold text-sm">
+              <span class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">2</span>
+              <span>Defensive Error Handling & Malformed Input</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Guards against non-object payloads, strings, or missing bodies. If a client transmits unparsed JSON, it safely catches syntax errors and responds with a clean <code class="text-slate-200">400 Bad Request</code>. The entire handler is wrapped in a global exception handler returning <code class="text-slate-200">500 Internal Server Error</code> without crashing the worker.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center space-x-2 text-indigo-400 font-bold text-sm">
+              <span class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">3</span>
+              <span>Case-Insensitive Query Filtering</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Supports <code class="text-slate-200">GET /api/leave-request?status=pending</code>. Filters case-insensitively and returns all records when no filter is provided. Compatible with both Vercel’s pre-parsed <code class="text-slate-200">req.query</code> and standard Node <code class="text-slate-200">req.url</code>.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center space-x-2 text-indigo-400 font-bold text-sm">
+              <span class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">4</span>
+              <span>HTTP Compliance & RFC 7231 Headers (405)</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Strictly restricts methods to <code class="text-slate-200">GET</code> and <code class="text-slate-200">POST</code>. All other methods return <code class="text-slate-200">405 Method Not Allowed</code> with the mandatory <code class="text-slate-200">Allow: GET, POST</code> header.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>&copy; 2026 SunSea LeavePortal. Built by <strong>Muhammad Anash</strong> for Production & Evaluation.</p>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/gitanash2126/leave-request-api" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
+        <span>&bull;</span>
+        <span class="text-slate-400">Node.js 22 &bull; Vercel Serverless</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic Scripts -->
+  <script>
+    let currentFilter = '';
+    let requestsData = [];
+
+    // Initialize Default Dates
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const today = new Date();
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 4);
+
+      document.getElementById('startDate').value = today.toISOString().split('T')[0];
+      document.getElementById('endDate').value = nextWeek.toISOString().split('T')[0];
+      calculateDuration();
+      loadRequests();
+    });
+
+    function switchTab(tab) {
+      ['portal', 'playground', 'architecture'].forEach(t => {
+        const view = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tab) {
+          view.classList.remove('hidden');
+          btn.className = 'pb-3 text-sm font-semibold flex items-center space-x-2 text-indigo-400 border-b-2 border-indigo-500 transition';
+        } else {
+          view.classList.add('hidden');
+          btn.className = 'pb-3 text-sm font-semibold flex items-center space-x-2 text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition';
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function calculateDuration() {
+      const s = document.getElementById('startDate').value;
+      const e = document.getElementById('endDate').value;
+      const box = document.getElementById('durationBox');
+      const text = document.getElementById('durationText');
+
+      if (!s || !e) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const start = new Date(s);
+      const end = new Date(e);
+
+      if (end < start) {
+        box.classList.remove('hidden');
+        box.className = 'p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center justify-between';
+        text.innerText = '⚠️ End date is before start date!';
+        return;
+      }
+
+      const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      box.classList.remove('hidden');
+      box.className = 'p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs flex items-center justify-between';
+      text.innerText = `Duration: ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    }
+
+    async function loadRequests() {
+      try {
+        const url = currentFilter ? `/api/leave-request?status=${encodeURIComponent(currentFilter)}` : '/api/leave-request';
+        document.getElementById('activeFilterLabel').innerText = `Endpoint: ${url}`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        requestsData = await res.json();
+        renderTable(requestsData);
+
+        // Also fetch total counts
+        const allRes = await fetch('/api/leave-request');
+        if (allRes.ok) {
+          const allData = await allRes.json();
+          updateCounts(allData);
+        }
+      } catch (err) {
+        console.error('Error fetching requests:', err);
+      }
+    }
+
+    function updateCounts(allData) {
+      const total = allData.length;
+      const pending = allData.filter(r => r.status && r.status.toLowerCase() === 'pending').length;
+      const approved = allData.filter(r => r.status && r.status.toLowerCase() === 'approved').length;
+      const rejected = allData.filter(r => r.status && r.status.toLowerCase() === 'rejected').length;
+
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statPending').innerText = pending;
+      document.getElementById('statApproved').innerText = approved;
+      document.getElementById('statRejected').innerText = rejected;
+
+      document.getElementById('countAll').innerText = total;
+      document.getElementById('countPending').innerText = pending;
+      document.getElementById('countApproved').innerText = approved;
+      document.getElementById('countRejected').innerText = rejected;
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('requestTableBody');
+      const emptyState = document.getElementById('tableEmptyState');
+      tbody.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition';
+
+        let badgeClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
+        if (item.status === 'approved') badgeClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+        if (item.status === 'rejected') badgeClass = 'bg-rose-500/10 text-rose-400 border border-rose-500/30';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-700">
+                ${(item.employeeId || 'E').slice(-2)}
+              </div>
+              <div>
+                <span class="font-bold text-white text-xs block">${item.employeeId || 'Unknown'}</span>
+                <span class="text-[10px] text-slate-500 font-mono">#REQ-${item.id}</span>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-4 font-mono text-slate-300">
+            <div>${item.startDate} &rarr; ${item.endDate}</div>
+            <div class="text-[10px] text-slate-500">${formatDays(item.startDate, item.endDate)}</div>
+          </td>
+          <td class="py-3 px-4 max-w-[200px] truncate text-slate-400" title="${item.reason || ''}">
+            ${item.reason || '<span class="italic text-slate-600">No reason specified</span>'}
+          </td>
+          <td class="py-3 px-4">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize ${badgeClass}">
+              ${item.status || 'pending'}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end space-x-1">
+              <button onclick="updateRequestStatus(${item.id}, 'approved')" title="Approve" class="p-1 rounded hover:bg-emerald-500/20 text-emerald-400 transition">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </button>
+              <button onclick="updateRequestStatus(${item.id}, 'rejected')" title="Reject" class="p-1 rounded hover:bg-rose-500/20 text-rose-400 transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function formatDays(s, e) {
+      if (!s || !e) return '';
+      const start = new Date(s);
+      const end = new Date(e);
+      if (isNaN(start) || isNaN(end) || end < start) return '';
+      const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      return `${days} day${days > 1 ? 's' : ''}`;
+    }
+
+    function applyStatusFilter(status) {
+      currentFilter = status;
+      ['All', 'Pending', 'Approved', 'Rejected'].forEach(name => {
+        const btn = document.getElementById('filterBtn' + name);
+        if ((!status && name === 'All') || (status && status.toLowerCase() === name.toLowerCase())) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/60 hover:bg-slate-700 text-slate-300 transition';
+        }
+      });
+      loadRequests();
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('formAlert');
+      const submitBtn = document.getElementById('submitBtn');
+
+      alertBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Submitting...</span>`;
+
+      const payload = {
+        employeeId: document.getElementById('employeeId').value,
+        startDate: document.getElementById('startDate').value,
+        endDate: document.getElementById('endDate').value,
+        reason: document.getElementById('reason').value,
+      };
+
+      try {
+        const res = await fetch('/api/leave-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 201) {
+          alertBox.className = 'p-3 rounded-xl text-xs font-medium border bg-emerald-500/10 border-emerald-500/20 text-emerald-300 flex items-start space-x-2';
+          alertBox.innerHTML = `<span>✅ Leave request #${data.id} submitted successfully!</span>`;
+          alertBox.classList.remove('hidden');
+          document.getElementById('reason').value = '';
+          loadRequests();
+        } else {
+          alertBox.className = 'p-3 rounded-xl text-xs font-medium border bg-rose-500/10 border-rose-500/20 text-rose-300 flex items-start space-x-2';
+          alertBox.innerHTML = `<span>❌ Error (${res.status}): ${data.error || 'Failed to submit'}</span>`;
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'p-3 rounded-xl text-xs font-medium border bg-rose-500/10 border-rose-500/20 text-rose-300 flex items-start space-x-2';
+        alertBox.innerHTML = `<span>❌ Network / Server Error: ${err.message}</span>`;
+        alertBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Submit Leave Request</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function setSample(type) {
+      const today = new Date().toISOString().split('T')[0];
+      if (type === 'valid') {
+        const next = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = next;
+      } else if (type === 'sameday') {
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+      } else if (type === 'invalidOrder') {
+        const past = new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = past;
+      } else if (type === 'missingDates') {
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+      }
+      calculateDuration();
+    }
+
+    function updateRequestStatus(id, newStatus) {
+      const item = requestsData.find(r => r.id === id);
+      if (item) {
+        item.status = newStatus;
+        loadRequests();
+      }
+    }
+
+    // Playground Logic
+    function toggleBodyVisibility() {
+      const method = document.getElementById('apiMethod').value;
+      const container = document.getElementById('bodyEditorContainer');
+      if (method === 'GET' || method === 'DELETE') {
+        container.classList.add('hidden');
+      } else {
+        container.classList.remove('hidden');
+      }
+    }
+
+    function loadPreset(key) {
+      const method = document.getElementById('apiMethod');
+      const path = document.getElementById('apiPath');
+      const body = document.getElementById('apiBody');
+
+      switch (key) {
+        case 'get_all':
+          method.value = 'GET';
+          path.value = '/api/leave-request';
+          break;
+        case 'get_filter':
+          method.value = 'GET';
+          path.value = '/api/leave-request?status=pending';
+          break;
+        case 'post_valid':
+          method.value = 'POST';
+          path.value = '/api/leave-request';
+          body.value = JSON.stringify({
+            employeeId: "EMP-2005",
+            startDate: "2026-11-01",
+            endDate: "2026-11-06",
+            reason: "Annual Medical Checkup"
+          }, null, 2);
+          break;
+        case 'post_invalid_order':
+          method.value = 'POST';
+          path.value = '/api/leave-request';
+          body.value = JSON.stringify({
+            employeeId: "EMP-2005",
+            startDate: "2026-11-10",
+            endDate: "2026-11-05",
+            reason: "Test Invalid Date Order"
+          }, null, 2);
+          break;
+        case 'post_invalid_date':
+          method.value = 'POST';
+          path.value = '/api/leave-request';
+          body.value = JSON.stringify({
+            employeeId: "EMP-2005",
+            startDate: "2026-02-31",
+            endDate: "2026-03-05",
+            reason: "Nonexistent Calendar Date"
+          }, null, 2);
+          break;
+        case 'post_missing_dates':
+          method.value = 'POST';
+          path.value = '/api/leave-request';
+          body.value = JSON.stringify({
+            employeeId: "EMP-2005",
+            reason: "Missing startDate and endDate"
+          }, null, 2);
+          break;
+        case 'post_malformed_json':
+          method.value = 'POST';
+          path.value = '/api/leave-request';
+          body.value = '{ "employeeId": "EMP-2005", broken_json: true ';
+          break;
+        case 'put_405':
+          method.value = 'PUT';
+          path.value = '/api/leave-request';
+          break;
+        case 'delete_405':
+          method.value = 'DELETE';
+          path.value = '/api/leave-request';
+          break;
+      }
+      toggleBodyVisibility();
+      sendPlaygroundRequest();
+    }
+
+    async function sendPlaygroundRequest() {
+      const method = document.getElementById('apiMethod').value;
+      const path = document.getElementById('apiPath').value;
+      const bodyText = document.getElementById('apiBody').value;
+      const output = document.getElementById('responseOutput');
+      const badge = document.getElementById('responseStatusBadge');
+      const latency = document.getElementById('responseLatency');
+
+      output.innerText = 'Sending request...';
+      badge.classList.add('hidden');
+      const startTime = performance.now();
+
+      try {
+        const options = { method, headers: {} };
+        if (method !== 'GET' && method !== 'DELETE') {
+          options.headers['Content-Type'] = 'application/json';
+          options.body = bodyText;
+        }
+
+        const res = await fetch(path, options);
+        const duration = Math.round(performance.now() - startTime);
+        latency.innerText = `${duration} ms`;
+
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        badge.classList.remove('hidden');
+        badge.innerText = `${res.status} ${res.statusText || ''}`;
+        if (res.status >= 200 && res.status < 300) {
+          badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        } else if (res.status >= 400 && res.status < 500) {
+          badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        } else {
+          badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        }
+
+        output.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      } catch (err) {
+        output.innerText = `Error: ${err.message}`;
+        badge.classList.remove('hidden');
+        badge.innerText = 'ERR';
+        badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full font-mono bg-rose-500/20 text-rose-400';
+      }
+    }
+  </script>
+</body>
+</html>

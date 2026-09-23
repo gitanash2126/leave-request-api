@@ -1,10 +1,11 @@
 {
   "name": "leave-request-api",
   "version": "1.0.0",
-  "description": "Fixed and extended Vercel serverless leave-request endpoint with date validation, error handling, and status filtering.",
+  "description": "Production-ready HR Leave Portal and Vercel serverless leave-request endpoint with date validation, error handling, status filtering, and interactive API playground.",
   "type": "module",
   "main": "api/leave-request.js",
   "scripts": {
+    "start": "node server.js",
     "test": "node --test"
   },
   "keywords": [
@@ -12,7 +13,9 @@
     "serverless",
     "leave-request",
     "nodejs",
-    "api"
+    "api",
+    "hrms",
+    "dashboard"
   ],
   "author": "Muhammad Anash",
   "license": "MIT"

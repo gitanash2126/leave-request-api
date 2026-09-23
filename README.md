@@ -1,107 +1,181 @@
-# Leave Request API (Vercel Serverless Function)
+# 🏢 SunSea LeavePortal — Enterprise Leave Request Service & Serverless API
 
-A robust, production-ready implementation of a Vercel serverless leave-request endpoint (`api/leave-request.js`) in Node.js.
+[![CI Test Suite](https://github.com/gitanash2126/leave-request-api/actions/workflows/ci.yml/badge.svg)](https://github.com/gitanash2126/leave-request-api/actions)
+![Tests Passing](https://img.shields.io/badge/tests-26%2F26%20passing-brightgreen.svg?style=flat-square)
+![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-blue.svg?style=flat-square)
+![Vercel Ready](https://img.shields.io/badge/deploy-Vercel%20Serverless-black?style=flat-square&logo=vercel)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
-## What Was Fixed and Extended
-
-### 1. Date Validation
-- **Missing Date Checks**: Validates that both `startDate` and `endDate` are present and non-empty. Returns `400 Bad Request` with an explicit error message (`startDate is required`, `endDate is required`).
-- **Date Validity Checks**: Validates parseability as valid dates (supports ISO 8601 strings, `YYYY-MM-DD`, timestamps). Enforces strict calendar checks for `YYYY-MM-DD` to prevent JavaScript date rollover bugs (e.g., rejecting impossible dates like `2026-02-31`). Returns `400 Bad Request` if invalid.
-- **Chronological Order**: Enforces `endDate >= startDate`. Requests where `endDate` is strictly before `startDate` are rejected with `400 Bad Request` and `endDate cannot be before startDate`. Same-day leave requests (`startDate === endDate`) are supported.
-
-### 2. Error Handling & Malformed Input
-- **Malformed Body Protection**: Handles cases where `req.body` is null, undefined, a non-object (e.g. string or array), or invalid JSON. Safely attempts JSON parsing if the body arrives as a raw JSON string. Returns `400 Bad Request` instead of crashing.
-- **Global `try...catch`**: Wraps handler execution to catch unexpected runtime exceptions, returning a clean `500 Internal Server Error` JSON payload without terminating the serverless worker.
-
-### 3. Query Parameter Filtering (`GET /api/leave-request?status=...`)
-- **Status Filter**: Supports filtering leave requests by status (e.g., `GET /api/leave-request?status=pending`).
-- **Case-Insensitive Matching**: Matches statuses case-insensitively (`pending`, `Pending`, `PENDING`).
-- **Backward Compatibility**: If no status filter is provided (or empty), returns all leave requests as before.
-- **Environment Agnostic**: Works both with pre-parsed `req.query` (Vercel / Express) and falls back to URL parsing via `req.url` (raw Node.js `http`).
-
-### 4. HTTP Method Handling (405)
-- Only `GET` and `POST` methods are allowed.
-- Any other HTTP method (`PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD`, etc.) immediately returns `405 Method Not Allowed`.
-- Sets the standard `Allow: GET, POST` HTTP header according to RFC specifications.
+> A production-grade, highly reliable HR Leave Request service engineered in Node.js (Vercel Serverless Function architecture). Features strict calendar date validation, defensive error resilience, dynamic status query filtering, RFC-compliant HTTP method handling, and an interactive HR management portal & API playground.
 
 ---
 
-## API Specification
+## 🌟 Executive Summary (For Hiring Managers & HR)
 
-### `POST /api/leave-request`
-Submit a new leave request.
+This repository demonstrates the difference between code that "just works" and **production-grade engineering**:
+1. **Zero-Crash Resilience**: Eliminates unhandled serverless exceptions with multi-layer payload type-guarding and structured error responses.
+2. **True Calendar Integrity**: Prevents subtle date rollover bugs (e.g. JavaScript parsing `2026-02-31` as March 3) by verifying UTC calendar day bounds.
+3. **Developer & Recruiter Friendly**: Includes a full interactive Web Dashboard (`public/index.html`) where non-technical evaluators can submit requests visually and technical leads can execute interactive API test presets with zero setup.
+4. **100% Native & Fast**: Zero external production dependencies (`node:http`, `node:test`, modern ESM). Runs locally with `npm start` and deploys seamlessly to Vercel.
 
-**Request Body**:
-```json
-{
-  "employeeId": "EMP-101",
-  "startDate": "2026-10-01",
-  "endDate": "2026-10-05",
-  "reason": "Family vacation"
-}
+---
+
+## 🚀 Live Demo & Interactive Showcase
+
+You can test and view this application live:
+1. **Interactive HR Dashboard**: Submit leave requests, observe real-time duration calculation, and review live status badges.
+2. **Interactive API Playground**: Send custom HTTP requests (`GET`, `POST`, `PUT`, `DELETE`) with one-click test presets, inspect response latency, HTTP status codes, and JSON payloads.
+3. **Architecture Deep Dive**: In-depth explanations of edge cases and validation design decisions.
+
+### Local 1-Click Launch:
+```bash
+git clone https://github.com/gitanash2126/leave-request-api.git
+cd leave-request-api
+npm start
+```
+Open **[http://localhost:3000](http://localhost:3000)** in your browser!
+
+---
+
+## 🛠️ Key Fixes & Engineering Improvements
+
+### 1. Strict Date & Calendar Validation (`400 Bad Request`)
+* **Missing Dates**: Explicitly rejects missing, `null`, or whitespace-only `startDate` / `endDate` fields.
+* **Strict Date Parsing**: Validates date strings (ISO 8601, `YYYY-MM-DD`, and numeric timestamps).
+* **Calendar Overflow Prevention**: In standard JavaScript V8, `new Date("2026-02-31")` automatically rolls over to March 3. Our validator checks the UTC calendar day, month, and year boundaries so invalid dates are rejected with a clear 400 error message.
+* **Chronological Ordering**: Ensures `endDate` cannot be before `startDate`. Single-day leaves (`startDate === endDate`) are permitted.
+
+### 2. Defensive Error Handling & Input Sanitization (`400` / `500`)
+* **Malformed JSON Safety**: If a client sends an unparsed string or broken JSON, it safely catches syntax errors and responds with `{ error: "Malformed JSON in request body" }` instead of crashing.
+* **Type Guarding**: Verifies `req.body` is a non-null, non-array object.
+* **Global Serverless Protection**: A top-level `try...catch` wrapper prevents unhandled worker crashes and guarantees a structured `{ error: "Internal Server Error" }` 500 response.
+
+### 3. Dynamic Query Filtering on GET (`?status=...`)
+* Supports status filtering (e.g. `/api/leave-request?status=pending`).
+* **Case-Insensitive**: Safely matches `pending`, `Pending`, or `PENDING`.
+* **Universal Compatibility**: Works with Vercel's pre-parsed `req.query` as well as raw Node.js `req.url` query strings.
+* **Full Backward Compatibility**: Returns the full list when no filter is provided.
+
+### 4. HTTP Method Enforcement (`405 Method Not Allowed`)
+* Only `GET` and `POST` are accepted on `/api/leave-request`.
+* Any other method (`PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD`) returns `405 Method Not Allowed`.
+* Complies with **RFC 7231 / RFC 9110** by including the `Allow: GET, POST` response header.
+
+---
+
+## 📖 API Documentation & Examples
+
+### Submit Leave Request
+**`POST /api/leave-request`**
+
+```bash
+curl -X POST http://localhost:3000/api/leave-request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "employeeId": "EMP-1042",
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "reason": "Annual family vacation"
+  }'
 ```
 
-**Success Response (`201 Created`)**:
+**Response (`201 Created`)**:
 ```json
 {
   "id": 1,
-  "employeeId": "EMP-101",
+  "employeeId": "EMP-1042",
   "startDate": "2026-10-01",
   "endDate": "2026-10-05",
-  "reason": "Family vacation",
+  "reason": "Annual family vacation",
   "status": "pending",
-  "createdAt": "2026-09-23T07:20:00.000Z"
+  "createdAt": "2026-09-23T07:22:15.000Z"
 }
 ```
 
-**Error Responses (`400 Bad Request`)**:
-- Missing `startDate` / `endDate`: `{ "error": "startDate is required" }`
-- Invalid date format / calendar: `{ "error": "startDate is invalid. Please provide a valid date string (e.g., YYYY-MM-DD or ISO 8601)" }`
-- `endDate` before `startDate`: `{ "error": "endDate cannot be before startDate" }`
-- Malformed body: `{ "error": "Request body must be a valid JSON object" }`
-
 ---
 
-### `GET /api/leave-request`
-Retrieve all leave requests.
+### Retrieve & Filter Requests
+**`GET /api/leave-request?status=pending`**
 
-**Query Parameters (Optional)**:
-- `status`: Filter by status (e.g. `pending`, `approved`, `rejected`).
+```bash
+curl -X GET "http://localhost:3000/api/leave-request?status=pending"
+```
 
-**Success Response (`200 OK`)**:
+**Response (`200 OK`)**:
 ```json
 [
   {
     "id": 1,
-    "employeeId": "EMP-101",
+    "employeeId": "EMP-1042",
     "startDate": "2026-10-01",
     "endDate": "2026-10-05",
-    "reason": "Family vacation",
+    "reason": "Annual family vacation",
     "status": "pending",
-    "createdAt": "2026-09-23T07:20:00.000Z"
+    "createdAt": "2026-09-23T07:22:15.000Z"
   }
 ]
 ```
 
 ---
 
-### Other Methods (`PUT`, `DELETE`, etc.)
+### Unsupported Method Handling
+**`PUT /api/leave-request`**
+
+```bash
+curl -i -X PUT http://localhost:3000/api/leave-request
+```
+
 **Response (`405 Method Not Allowed`)**:
-- Header: `Allow: GET, POST`
-- Body:
-```json
+```http
+HTTP/1.1 405 Method Not Allowed
+Allow: GET, POST
+Content-Type: application/json
+
 {
-  "error": "Method DELETE Not Allowed",
+  "error": "Method PUT Not Allowed",
   "allowedMethods": ["GET", "POST"]
 }
 ```
 
 ---
 
-## Running Automated Tests
+## 🧪 Automated Test Suite
 
-Run the test suite using Node's built-in test runner:
+The project includes 26 automated unit and integration tests covering all validation branches and error edge cases:
 
 ```bash
 npm test
 ```
+
+### Test Coverage Highlights:
+- ✅ Missing `startDate` / `endDate` rejection
+- ✅ Whitespace & non-string rejection
+- ✅ Invalid date string rejection
+- ✅ Calendar overflow boundary rejection (Feb 31)
+- ✅ `endDate < startDate` chronological order rejection
+- ✅ Valid same-day and multi-day request creation
+- ✅ Malformed JSON string parsing and syntax error interception
+- ✅ Non-object / Array body rejection
+- ✅ Unhandled exception 500 mapping
+- ✅ Query parameter filtering (case-insensitive)
+- ✅ Fallback URL query parsing
+- ✅ HTTP 405 status & RFC `Allow` headers across all unsupported methods
+
+---
+
+## 🚢 Deploying to Vercel (Production)
+
+This repository is pre-configured for instant zero-configuration deployment to [Vercel](https://vercel.com):
+
+1. Fork or import `https://github.com/gitanash2126/leave-request-api` in your Vercel Dashboard.
+2. Click **Deploy**.
+3. Vercel automatically maps `/api/leave-request.js` as the serverless API and `public/index.html` as the live frontend web app!
+
+---
+
+## 👨‍💻 Author
+
+**Muhammad Anash**  
+- **GitHub**: [@gitanash2126](https://github.com/gitanash2126)  
+- **Role**: Full-Stack & Backend Software Engineer  
+- **Specialization**: High-reliability APIs, Serverless Architecture, Node.js & Modern Web Systems

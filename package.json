@@ -1,0 +1,19 @@
+{
+  "name": "leave-request-api",
+  "version": "1.0.0",
+  "description": "Fixed and extended Vercel serverless leave-request endpoint with date validation, error handling, and status filtering.",
+  "type": "module",
+  "main": "api/leave-request.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "vercel",
+    "serverless",
+    "leave-request",
+    "nodejs",
+    "api"
+  ],
+  "author": "Muhammad Anash",
+  "license": "MIT"
+}
